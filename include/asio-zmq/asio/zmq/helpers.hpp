@@ -5,6 +5,13 @@
 
 namespace asio {
 namespace zmq {
+struct message_deleter {
+    void operator()(zmq_msg_t *msg) noexcept
+    {
+        zmq_msg_close(msg);
+        delete msg;
+    }
+};
 
 struct context_deleter {
     void operator()(void* ctx) noexcept
