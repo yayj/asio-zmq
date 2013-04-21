@@ -3,3 +3,4 @@
 #include "asio-zmq/asio/zmq/exception.hpp"
 #include "asio-zmq/asio/zmq/context.hpp"
 #include "asio-zmq/asio/zmq/frame.hpp"
+#include "asio-zmq/asio/zmq/socket.hpp"
