@@ -2,6 +2,8 @@
 #define ASIO_ZMQ_HELPERS_HPP_
 
 #include <asio/io_service.hpp>
+#include <asio/posix/basic_stream_descriptor.hpp>
+#include <asio/posix/stream_descriptor_service.hpp>
 #include <zmq.h>
 
 namespace asio {
@@ -17,24 +19,29 @@ struct non_closing_io_object_service : public IoObjectService {
     {}
 };
 
+typedef non_closing_io_object_service<asio::posix::stream_descriptor_service>
+descriptor_service;
+
+typedef asio::posix::basic_stream_descriptor<descriptor_service>
+descriptor_type;
+
+typedef descriptor_type::native_handle_type native_handle_type;
+
 struct message_deleter {
-    void operator()(zmq_msg_t *msg) noexcept
-    {
+    void operator()(zmq_msg_t* msg) noexcept {
         zmq_msg_close(msg);
         delete msg;
     }
 };
 
 struct socket_deleter {
-    void operator()(void* sock) noexcept
-    {
+    void operator()(void* sock) noexcept {
         zmq_close(sock);
     }
 };
 
 struct context_deleter {
-    void operator()(void* ctx) noexcept
-    {
+    void operator()(void* ctx) noexcept {
         zmq_ctx_destroy(ctx);
     }
 };

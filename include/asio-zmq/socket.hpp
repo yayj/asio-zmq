@@ -9,8 +9,6 @@
 #include <string>
 #include <asio/error_code.hpp>
 #include <asio/io_service.hpp>
-#include <asio/posix/basic_stream_descriptor.hpp>
-#include <asio/posix/stream_descriptor_service.hpp>
 #include <zmq.h>
 #include "helpers.hpp"
 #include "socket_option.hpp"
@@ -22,28 +20,11 @@ namespace zmq {
 
 class socket {
 private:
-    typedef
-    non_closing_io_object_service<asio::posix::stream_descriptor_service>
-    descriptor_service;
-
-    typedef
-    asio::posix::basic_stream_descriptor<descriptor_service>
-    descriptor_type;
-
-    typedef descriptor_type::native_handle_type native_handle_type;
     typedef std::unique_ptr<void, socket_deleter> zsocket_type;
 
     asio::io_service& io_;
     descriptor_type descriptor_;
     zsocket_type zsock_;
-
-    template <typename ValueType>
-    void get_option(ValueType& value, int option) const {
-        std::size_t size = sizeof(ValueType);
-        if (0 != zmq_getsockopt(zsock_.get(), option, &value, &size)) {
-            throw exception();
-        }
-    }
 
     template <typename OutputIt, typename ReadHandler>
     void read_one_message(OutputIt buff_it, ReadHandler handler,
@@ -97,6 +78,12 @@ private:
         }
     }
 
+    bool has_more() const {
+        socket_option::recv_more more;
+        get_option(more);
+        return more.value();
+    }
+
 public:
     explicit socket(asio::io_service& io, context& ctx, int type)
         : io_(io), descriptor_(io),
@@ -105,9 +92,9 @@ public:
             throw exception();
         }
 
-        native_handle_type handle = -1;
-        get_option(handle, ZMQ_FD);
-        descriptor_.assign(handle);
+        socket_option::fd fd;
+        get_option(fd);
+        descriptor_.assign(fd.value());
     }
 
     void cancel() {
@@ -124,22 +111,16 @@ public:
             throw exception();
     }
 
-    bool has_more() const {
-        int more = 0;
-        get_option(more, ZMQ_RCVMORE);
-        return static_cast<bool>(more);
-    }
-
     bool is_readable() const {
-        uint32_t events = 0;
-        get_option(events, ZMQ_EVENTS);
-        return (events & ZMQ_POLLIN) == ZMQ_POLLIN;
+        socket_option::events events;
+        get_option(events);
+        return (events.value() & ZMQ_POLLIN) == ZMQ_POLLIN;
     }
 
     bool is_writable() const {
-        uint32_t events = 0;
-        get_option(events, ZMQ_EVENTS);
-        return (events & ZMQ_POLLOUT) == ZMQ_POLLOUT;
+        socket_option::events events;
+        get_option(events);
+        return (events.value() & ZMQ_POLLOUT) == ZMQ_POLLOUT;
     }
 
     template <typename OutputIt>
