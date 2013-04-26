@@ -26,8 +26,8 @@ private:
     descriptor_type descriptor_;
     zsocket_type zsock_;
 
-    template <typename OutputIt, typename ReadHandler>
-    void read_one_message(OutputIt buff_it, ReadHandler handler,
+    template <typename OutputIt, typename ReadHandlerPtr>
+    void read_one_message(OutputIt buff_it, ReadHandlerPtr handler,
                           asio::error_code const& ec) {
         if (ec) {
             io_.post(std::bind(*handler, ec));
@@ -43,7 +43,7 @@ private:
                 descriptor_.async_read_some(
                     asio::null_buffers(),
                     std::bind(
-                        &socket::read_one_message<OutputIt, ReadHandler>,
+                        &socket::read_one_message<OutputIt, ReadHandlerPtr>,
                         this, buff_it,
                         handler, std::placeholders::_1));
             }
@@ -52,9 +52,9 @@ private:
         }
     }
 
-    template <typename InputIt, typename WriteHandler>
+    template <typename InputIt, typename WriteHandlerPtr>
     void write_one_message(InputIt first_it, InputIt last_it,
-                           WriteHandler handler,
+                           WriteHandlerPtr handler,
                            asio::error_code const& ec) {
         if (ec) {
             io_.post(std::bind(*handler, ec));
@@ -69,7 +69,7 @@ private:
                 descriptor_.async_write_some(
                     asio::null_buffers(),
                     std::bind(
-                        &socket::write_one_message<InputIt, WriteHandler>,
+                        &socket::write_one_message<InputIt, WriteHandlerPtr>,
                         this, first_it, last_it, handler,
                         std::placeholders::_1));
             }
@@ -152,8 +152,7 @@ public:
     template <typename OutputIt, typename ReadHandler>
     void async_read_message(OutputIt buff_it, ReadHandler handler) {
         read_one_message(buff_it,
-                         std::shared_ptr<ReadHandler>(
-                             new ReadHandler(handler)),
+                         std::make_shared<ReadHandler>(handler),
                          asio::error_code());
     }
 
@@ -161,8 +160,7 @@ public:
     void async_write_message(InputIt first_it, InputIt last_it,
                              WriteHandler handler) {
         write_one_message(first_it, last_it,
-                          std::shared_ptr<WriteHandler>(
-                              new WriteHandler(handler)),
+                          std::make_shared<WriteHandler>(handler),
                           asio::error_code());
     }
 

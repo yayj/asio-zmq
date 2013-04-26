@@ -2,6 +2,7 @@
 #define ASIO_ZMQ_SOCKET_OPTION_HPP_
 
 #include <cstdint>
+#include <type_traits>
 #include <vector>
 #include <zmq.h>
 #include "helpers.hpp"
