@@ -32,6 +32,11 @@ struct default_option_value<ZMQ_RCVMORE, bool> {
 };
 
 template <>
+struct default_option_value<ZMQ_LINGER, int> {
+    constexpr static int value = -1;
+};
+
+template <>
 struct default_option_value<ZMQ_FD, native_handle_type> {
     constexpr static native_handle_type value = -1;
 };
@@ -96,6 +101,7 @@ typedef raw_type_option<ZMQ_SNDHWM, int> send_buff_hwm;
 typedef raw_type_option<ZMQ_RCVMORE, bool> recv_more;
 typedef binary_type_option<ZMQ_IDENTITY> identity;
 typedef raw_type_option<ZMQ_FD, native_handle_type> fd;
+typedef raw_type_option<ZMQ_LINGER, int> linger;
 
 typedef std::integral_constant<int, 0> raw_option;
 typedef std::integral_constant<int, 1> bool_option;
@@ -108,6 +114,7 @@ template <> struct traits<send_buff_hwm> : public raw_option {};
 template <> struct traits<recv_more> : public bool_option {};
 template <> struct traits<identity> : public binary_option {};
 template <> struct traits<fd> : public raw_option {};
+template <> struct traits<linger> : public raw_option {};
 
 } // namespace socket_option
 } // namespace zmq
