@@ -1,8 +1,11 @@
 #ifndef ASIO_ZMQ_FRAME_HPP_
 #define ASIO_ZMQ_FRAME_HPP_
 
+#include <algorithm>
 #include <cstddef>
+#include <iterator>
 #include <memory>
+#include <string>
 #include <utility>
 #include <zmq.h>
 #include "helpers.hpp"
@@ -57,6 +60,12 @@ public:
             throw exception();
     }
 
+    explicit frame(std::string const& str) : body_(create(str.size()))
+    {
+        std::copy(std::begin(str), std::end(str),
+                  static_cast<char*>(data()));
+    }
+
     frame& operator=(frame const& other)
     {
         zmsg_type tmp{create(other.size())};
@@ -93,4 +102,12 @@ public:
 } // namespace zmq
 } // namespace asio
 
+namespace std {
+
+std::string to_string(asio::zmq::frame const& frame)
+{
+    return std::string(static_cast<char const*>(frame.data()), frame.size());
+}
+
+}
 #endif // ASIO_ZMQ_FRAME_HPP_

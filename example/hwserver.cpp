@@ -1,8 +1,6 @@
-#include <algorithm>
 #include <functional>
 #include <iostream>
 #include <iterator>
-#include <string>
 #include <thread>
 #include <vector>
 #include <asio.hpp>
@@ -19,7 +17,7 @@ public:
     {}
 
     void start() {
-        socket_.bind(std::string("tcp://*:5555"));
+        socket_.bind("tcp://*:5555");
         socket_.async_read_message(
             std::back_inserter(buffer_),
             std::bind(&hwserver::handle_read, this, std::placeholders::_1));
@@ -30,11 +28,8 @@ public:
 
         std::this_thread::sleep_for(std::chrono::seconds(1));
 
-        std::string reply {"World"};
         buffer_.clear();
-        buffer_.push_back(asio::zmq::frame(reply.size()));
-        std::copy(std::begin(reply), std::end(reply),
-                  static_cast<char*>(buffer_[0].data()));
+        buffer_.push_back(asio::zmq::frame("World"));
 
         socket_.async_write_message(
             std::begin(buffer_), std::end(buffer_),

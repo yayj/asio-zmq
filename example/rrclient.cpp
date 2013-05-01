@@ -1,4 +1,3 @@
-#include <algorithm>
 #include <iostream>
 #include <iterator>
 #include <vector>
@@ -7,7 +6,6 @@
 
 int main(int argc, char* argv[])
 {
-    std::string request = "Hello";
     std::vector<asio::zmq::frame> buffer;
     asio::io_service ios;
     asio::zmq::context ctx;
@@ -17,16 +15,13 @@ int main(int argc, char* argv[])
 
     for (int count = 0; count < 10; ++count) {
     	buffer.clear();
-        buffer.push_back(asio::zmq::frame(request.size()));
-        std::copy(std::begin(request), std::end(request),
-                  static_cast<char*>(buffer[0].data()));
+        buffer.push_back(asio::zmq::frame("Hello"));
         requester.write_message(std::begin(buffer), std::end(buffer));
 
         buffer.clear();
         requester.read_message(std::back_inserter(buffer));
         std::cout << "Received reply " << count << " ["
-                  << std::string(static_cast<char*>(
-                                     buffer[0].data()), buffer[0].size())
+                  << std::to_string(buffer[0])
                   << "]\n";
     }
 

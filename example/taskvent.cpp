@@ -1,4 +1,3 @@
-#include <algorithm>
 #include <chrono>
 #include <cstdio>
 #include <cstdlib>
@@ -42,12 +41,9 @@ int main(int argc, char* argv[])
         int workload = std::rand() % 100 + 1;
         //  Random workload from 1 to 100msecs
         total_msec += workload;
-        std::string s = std::to_string(workload);
 
         buffer.clear();
-        buffer.push_back(asio::zmq::frame(s.size()));
-        std::copy(std::begin(s), std::end(s),
-                  static_cast<char*>(buffer[0].data()));
+        buffer.push_back(asio::zmq::frame(std::to_string(workload)));
         sender.write_message(std::begin(buffer), std::end(buffer));
     }
     std::cout << "Total expected cost: "

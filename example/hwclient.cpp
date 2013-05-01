@@ -1,8 +1,6 @@
-#include <algorithm>
 #include <functional>
 #include <iostream>
 #include <iterator>
-#include <string>
 #include <vector>
 #include <asio.hpp>
 #include <asio-zmq.hpp>
@@ -23,11 +21,9 @@ public:
     void start() {
         socket_.connect("tcp://localhost:5555");
 
-        buffer_.push_back(asio::zmq::frame(req.size()));
-        std::copy(std::begin(req), std::end(req),
-                  static_cast<char*>(buffer_[0].data()));
+        buffer_.push_back(asio::zmq::frame(req));
 
-        std::cout << "Sending Hello " << request_nbr_ << "..." << std::endl;
+        std::cout << "Sending Hello " << request_nbr_ << "...\n";
         socket_.async_write_message(
             std::begin(buffer_), std::end(buffer_),
             std::bind(&hwclient::handle_write, this, std::placeholders::_1));
@@ -41,15 +37,13 @@ public:
     }
 
     void handle_read(asio::error_code const& ec) {
-        std::cout << "Received World " << request_nbr_ << std::endl;
+        std::cout << "Received World " << request_nbr_ << "\n";
         if (++request_nbr_ == 10)
             return;
 
         buffer_.clear();
-        buffer_.push_back(asio::zmq::frame(req.size()));
-        std::copy(std::begin(req), std::end(req),
-                  static_cast<char*>(buffer_[0].data()));
-        std::cout << "Sending Hello " << request_nbr_ << "..." << std::endl;
+        buffer_.push_back(asio::zmq::frame(req));
+        std::cout << "Sending Hello " << request_nbr_ << "...\n";
         socket_.async_write_message(
             std::begin(buffer_), std::end(buffer_),
             std::bind(&hwclient::handle_write, this, std::placeholders::_1));

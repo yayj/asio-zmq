@@ -2,7 +2,6 @@
 #include <functional>
 #include <iostream>
 #include <iterator>
-#include <sstream>
 #include <thread>
 #include <vector>
 #include <asio.hpp>
@@ -33,9 +32,7 @@ public:
 
     void handle_read(asio::error_code const& ec) {
         //  Workload in msecs
-        int workload = std::stoi(std::string(
-                                     static_cast<char*>(buffer_[0].data()),
-                                     buffer_[0].size()));
+        int workload = std::stoi(std::to_string(buffer_[0]));
 
         //  Do the work
         std::this_thread::sleep_for(std::chrono::milliseconds(workload));

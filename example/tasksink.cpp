@@ -37,6 +37,6 @@ int main(int argc, char* argv[])
     std::cout << "\nTotal elapsed time: "
               << std::chrono::duration_cast<
               std::chrono::milliseconds>(duration).count()
-              << " msec\n" << std::endl;
+              << " msec\n";
     return 0;
 }

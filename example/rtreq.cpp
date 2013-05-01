@@ -1,4 +1,3 @@
-#include <algorithm>
 #include <cstdlib>
 #include <iostream>
 #include <iterator>
@@ -29,9 +28,7 @@ private:
 
     void ping_pong() {
         message_.clear();
-        message_.push_back(asio::zmq::frame(ready_inst.size()));
-        std::copy(std::begin(ready_inst), std::end(ready_inst),
-                  static_cast<char*>(message_[0].data()));
+        message_.push_back(asio::zmq::frame(ready_inst));
         //  Tell the router we're ready for work
         sock_.write_message(std::begin(message_), std::end(message_));
 
@@ -55,9 +52,7 @@ private:
 
     void handle_work(asio::error_code const& ec) {
         //  Get workload from router, until finished
-        if (end_inst ==
-                std::string(static_cast<char*>(
-                                message_[0].data()), message_[0].size())) {
+        if (end_inst == std::to_string(message_[0])) {
             std::lock_guard<std::mutex> lock(g_mutex);
             std::cout << id_ << " Processed: " << total_ << " tasks\n";
         } else {
@@ -102,9 +97,7 @@ private:
         message_ptr tmp {new message_t};
         std::swap(*tmp, buffer_);
         tmp->pop_back();
-        tmp->push_back(asio::zmq::frame(inst.size()));
-        std::copy(std::begin(inst), std::end(inst),
-                  static_cast<char*>(tmp->back().data()));
+        tmp->push_back(asio::zmq::frame(inst));
         sock_.async_write_message(
             std::begin(*tmp), std::end(*tmp),
             std::bind(&client::null_handler, this,
