@@ -2,7 +2,6 @@
 #include <iostream>
 #include <iterator>
 #include <memory>
-#include <mutex>
 #include <sstream>
 #include <string>
 #include <thread>
@@ -10,7 +9,6 @@
 #include <asio.hpp>
 #include <asio-zmq.hpp>
 
-static std::mutex g_mutex;
 static int const NBR_WORKERS = 10;
 static std::string const endpoint = "ipc://routing.ipc";
 static std::string const ready_inst = "READY";
@@ -19,9 +17,7 @@ static std::string const work_inst = "This is the workload";
 
 class req_worker {
 private:
-    asio::io_service& ios_;
     asio::zmq::socket sock_;
-    std::unique_ptr<std::thread> work_thread_;
     std::vector<asio::zmq::frame> message_;
     int total_;
     std::string id_;
@@ -38,22 +34,9 @@ private:
             std::bind(&req_worker::handle_work, this, std::placeholders::_1));
     }
 
-    void go() {
-        std::ostringstream oss;
-        oss << std::this_thread::get_id();
-        id_ = oss.str();
-        sock_.set_option(
-            asio::zmq::socket_option::identity(id_.c_str(), id_.size()));
-        sock_.connect(endpoint);
-
-        ping_pong();
-        ios_.run();
-    }
-
     void handle_work(asio::error_code const& ec) {
         //  Get workload from router, until finished
         if (end_inst == std::to_string(message_[0])) {
-            std::lock_guard<std::mutex> lock(g_mutex);
             std::cout << id_ << " Processed: " << total_ << " tasks\n";
         } else {
             ++total_;
@@ -66,18 +49,16 @@ private:
     }
 
 public:
-    req_worker(asio::io_service& ios, asio::zmq::context& ctx)
-        : ios_(ios), sock_(ios, ctx, ZMQ_REQ), work_thread_(),
-          message_(), total_(0), id_()
-    {}
-
-    ~req_worker() {
-        work_thread_->join();
+    req_worker(asio::io_service& ios, asio::zmq::context& ctx, int id)
+        : sock_(ios, ctx, ZMQ_REQ), message_(),
+          total_(0), id_(std::to_string(id)) {
+        sock_.set_option(
+            asio::zmq::socket_option::identity(id_.c_str(), id_.size()));
+        sock_.connect(endpoint);
     }
 
     void start() {
-        work_thread_.reset(new std::thread(
-                               std::bind(&req_worker::go, this)));
+        ping_pong();
     }
 };
 
@@ -114,11 +95,11 @@ private:
 
 public:
     client(asio::io_service& ios, asio::zmq::context& ctx)
-        : sock_(ios, ctx, ZMQ_ROUTER), buffer_(), task_nbr_(0)
-    {}
+        : sock_(ios, ctx, ZMQ_ROUTER), buffer_(), task_nbr_(0) {
+        sock_.bind(endpoint);
+    }
 
     void start() {
-        sock_.bind(endpoint);
         sock_.async_read_message(
             std::back_inserter(buffer_),
             std::bind(&client::handle_req, this, std::placeholders::_1));
@@ -133,7 +114,7 @@ int main()
 
     std::vector<std::unique_ptr<req_worker>> workers(NBR_WORKERS);
     for (int worker_nbr = 0; worker_nbr < NBR_WORKERS; worker_nbr++) {
-        workers[worker_nbr].reset(new req_worker(ios, ctx));
+        workers[worker_nbr].reset(new req_worker(ios, ctx, worker_nbr));
         workers[worker_nbr]->start();
     }
 
