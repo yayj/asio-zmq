@@ -7,6 +7,8 @@ else ()
   set(CMAKE_CXX_FLAGS "-Wall -std=c++11")
 endif ()
 
+add_definitions(-DASIO_HAS_STD_CHRONO)
+
 find_library(ZMQ_LIBRARY zmq REQUIRED)
 
 file(GLOB example_SRCS "${CMAKE_SOURCE_DIR}/*.cpp")
