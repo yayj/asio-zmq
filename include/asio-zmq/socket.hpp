@@ -167,9 +167,8 @@ public:
     template <typename Option>
     void get_option(
         Option& option,
-        typename std::enable_if<std::is_base_of<
-        socket_option::raw_option,
-        socket_option::traits<Option>>::value>::type* = 0) const {
+        typename std::enable_if<
+        socket_option::is_raw_option<Option>::value>::type* = nullptr) const {
         std::size_t size = sizeof(option.value());
         if (-1 == zmq_getsockopt(
                     zsock_.get(), Option::id,
@@ -180,9 +179,8 @@ public:
     template <typename Option>
     void get_option(
         Option& option,
-        typename std::enable_if<std::is_base_of<
-        socket_option::bool_option,
-        socket_option::traits<Option>>::value>::type* = 0) const {
+        typename std::enable_if<
+        socket_option::is_bool_option<Option>::value>::type* = nullptr) const {
         int v;
         std::size_t size = sizeof(v);
         if (-1 == zmq_getsockopt(
@@ -194,9 +192,8 @@ public:
     template <typename Option>
     void set_option(
         Option const& option,
-        typename std::enable_if<std::is_base_of<
-        socket_option::raw_option,
-        socket_option::traits<Option>>::value>::type* = 0) {
+        typename std::enable_if<
+        socket_option::is_raw_option<Option>::value>::type* = nullptr) {
         typename Option::option_value_type v = option.value();
         std::size_t size = sizeof(v);
         if (-1 == zmq_setsockopt(zsock_.get(), Option::id, &v, size))
@@ -206,9 +203,8 @@ public:
     template <typename Option>
     void set_option(
         Option const& option,
-        typename std::enable_if<std::is_base_of<
-        socket_option::bool_option,
-        socket_option::traits<Option>>::value>::type* = 0) {
+        typename std::enable_if<
+        socket_option::is_bool_option<Option>::value>::type* = nullptr) {
         int v = static_cast<int>(option.value());
         std::size_t size = sizeof(v);
         if (-1 == zmq_getsockopt(zsock_.get(), Option::id, &v, size))
@@ -218,9 +214,9 @@ public:
     template <typename Option>
     void get_option(
         Option& option,
-        typename std::enable_if<std::is_base_of<
-        socket_option::binary_option,
-        socket_option::traits<Option>>::value>::type* = 0) const {
+        typename std::enable_if<
+        socket_option::is_binary_option<Option>::value>::type*
+        = nullptr) const {
         std::array<std::uint8_t, socket_option::max_buff_size> buffer;
         std::size_t size = socket_option::max_buff_size;
         if (-1 == zmq_getsockopt(
@@ -234,9 +230,8 @@ public:
     template <typename Option>
     void set_option(
         Option const& option,
-        typename std::enable_if<std::is_base_of<
-        socket_option::binary_option,
-        socket_option::traits<Option>>::value>::type* = 0) {
+        typename std::enable_if<
+        socket_option::is_binary_option<Option>::value>::type* = nullptr) {
         if (-1 == zmq_setsockopt(
                     zsock_.get(), Option::id, option.value(), option.size()))
             throw exception();

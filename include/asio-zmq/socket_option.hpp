@@ -70,6 +70,8 @@ class binary_type_option {
 public:
     constexpr static int id = option;
 
+    typedef void* option_value_type;
+
     binary_type_option() {}
 
     binary_type_option(void const* value, std::size_t size)
@@ -103,18 +105,26 @@ typedef binary_type_option<ZMQ_IDENTITY> identity;
 typedef raw_type_option<ZMQ_FD, native_handle_type> fd;
 typedef raw_type_option<ZMQ_LINGER, int> linger;
 
-typedef std::integral_constant<int, 0> raw_option;
-typedef std::integral_constant<int, 1> bool_option;
-typedef std::integral_constant<int, 2> binary_option;
+template <typename OptionType>
+struct is_binary_option
+        : public std::is_same<OptionType,
+          binary_type_option<OptionType::id>> {
+};
 
-template <typename Option> struct traits {};
+template <typename OptionType>
+struct is_bool_option
+        : public std::is_same<OptionType,
+          raw_type_option<OptionType::id, bool>> {
+};
 
-template <> struct traits<events> : public raw_option {};
-template <> struct traits<send_buff_hwm> : public raw_option {};
-template <> struct traits<recv_more> : public bool_option {};
-template <> struct traits<identity> : public binary_option {};
-template <> struct traits<fd> : public raw_option {};
-template <> struct traits<linger> : public raw_option {};
+template <typename OptionType>
+struct is_raw_option {
+    constexpr static bool value =
+        std::is_same<OptionType,
+        raw_type_option<OptionType::id,
+        typename OptionType::option_value_type>>::value
+        && !is_bool_option<OptionType>::value;
+};
 
 } // namespace socket_option
 } // namespace zmq
