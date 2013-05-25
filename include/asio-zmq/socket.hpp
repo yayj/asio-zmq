@@ -78,12 +78,6 @@ private:
         }
     }
 
-    bool has_more() const {
-        socket_option::recv_more more;
-        get_option(more);
-        return more.value();
-    }
-
 public:
     explicit socket(asio::io_service& io, context& ctx, int type)
         : io_(io), descriptor_(io),
@@ -123,13 +117,28 @@ public:
         return (events.value() & ZMQ_POLLOUT) == ZMQ_POLLOUT;
     }
 
+    bool has_more() const {
+        socket_option::recv_more more;
+        get_option(more);
+        return more.value();
+    }
+
+    frame read_frame() {
+        frame tmp;
+        if (-1 == zmq_msg_recv(tmp.body_.get(), zsock_.get(), 0))
+            throw exception();
+        return tmp;
+    }
+
+    void write_frame(frame const& frm) {
+        if (-1 == zmq_msg_send(frm.body_.get(), zsock_.get(), 0))
+            throw exception();
+    }
+
     template <typename OutputIt>
     void read_message(OutputIt buff_it) {
         do {
-            frame frm;
-            if (-1 == zmq_msg_recv(frm.body_.get(), zsock_.get(), 0))
-                throw exception();
-            *buff_it++ = std::move(frm);
+            *buff_it++ = read_frame();
         } while (has_more());
     }
 
@@ -139,14 +148,11 @@ public:
         InputIt curr = first_it;
 
         while (++curr != last_it) {
-            if (-1 == zmq_msg_send(
-                        prev->body_.get(), zsock_.get(), ZMQ_SNDMORE))
-                throw exception();
+            write_frame(*prev);
             ++prev;
         }
-        if (prev != last_it &&
-                -1 == zmq_msg_send(prev->body_.get(), zsock_.get(), 0))
-            throw exception();
+        if (prev != last_it)
+            write_frame(*prev);
     }
 
     template <typename OutputIt, typename ReadHandler>
