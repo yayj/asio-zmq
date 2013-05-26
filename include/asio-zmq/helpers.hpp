@@ -27,13 +27,6 @@ descriptor_type;
 
 typedef descriptor_type::native_handle_type native_handle_type;
 
-struct message_deleter {
-    void operator()(zmq_msg_t* msg) noexcept {
-        zmq_msg_close(msg);
-        delete msg;
-    }
-};
-
 struct socket_deleter {
     void operator()(void* sock) noexcept {
         zmq_close(sock);

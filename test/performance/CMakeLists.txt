@@ -2,9 +2,9 @@ project(asio-zmq-examples)
 cmake_minimum_required(VERSION 2.8)
 
 if (${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
-  set(CMAKE_CXX_FLAGS "-Wall -std=c++11 -stdlib=libc++")
+  set(CMAKE_CXX_FLAGS "-Wall -O2 -std=c++11 -stdlib=libc++")
 else ()
-  set(CMAKE_CXX_FLAGS "-Wall -std=c++11")
+  set(CMAKE_CXX_FLAGS "-Wall -O2 -std=c++11")
 endif ()
 
 add_definitions(-DASIO_HAS_STD_CHRONO)
@@ -14,6 +14,7 @@ find_library(ZMQ_LIBRARY zmq REQUIRED)
 file(GLOB example_SRCS "${CMAKE_SOURCE_DIR}/*.cpp")
 
 include_directories(${CMAKE_SOURCE_DIR}/../../include)
+include_directories(/tmp/libzmq/src)
 
 foreach(SRC ${example_SRCS})
   get_filename_component(EXE ${SRC} NAME_WE)

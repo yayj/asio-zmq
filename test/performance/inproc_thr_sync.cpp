@@ -49,7 +49,7 @@ int main(int argc, char* argv[])
     unsigned long throughput = static_cast<double>(message_count) /
                                static_cast<double>(elapsed) * 1000000;
     double megabits = static_cast<double>(throughput * message_size * 8)
-                      / 1024 / 1024;
+                      / 1000000;
 
     std::cout << "mean throughput: " << throughput << " [msg/s]\n";
     std::cout << "mean throughput: " << megabits << " [Mb/s]\n";

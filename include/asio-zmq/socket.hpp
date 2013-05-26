@@ -125,13 +125,14 @@ public:
 
     frame read_frame() {
         frame tmp;
-        if (-1 == zmq_msg_recv(tmp.body_.get(), zsock_.get(), 0))
+        if (-1 == zmq_msg_recv(&tmp.raw_msg_, zsock_.get(), 0))
             throw exception();
         return tmp;
     }
 
     void write_frame(frame const& frm) {
-        if (-1 == zmq_msg_send(frm.body_.get(), zsock_.get(), 0))
+        if (-1 == zmq_msg_send(const_cast<zmq_msg_t*>(&frm.raw_msg_),
+                               zsock_.get(), 0))
             throw exception();
     }
 
