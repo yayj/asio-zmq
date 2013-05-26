@@ -123,16 +123,16 @@ public:
         return more.value();
     }
 
-    frame read_frame() {
+    frame read_frame(int flag = 0) {
         frame tmp;
-        if (-1 == zmq_msg_recv(&tmp.raw_msg_, zsock_.get(), 0))
+        if (-1 == zmq_msg_recv(&tmp.raw_msg_, zsock_.get(), flag))
             throw exception();
         return tmp;
     }
 
-    void write_frame(frame const& frm) {
+    void write_frame(frame const& frm, int flag = 0) {
         if (-1 == zmq_msg_send(const_cast<zmq_msg_t*>(&frm.raw_msg_),
-                               zsock_.get(), 0))
+                               zsock_.get(), flag))
             throw exception();
     }
 
@@ -149,7 +149,7 @@ public:
         InputIt curr = first_it;
 
         while (++curr != last_it) {
-            write_frame(*prev);
+            write_frame(*prev, ZMQ_SNDMORE);
             ++prev;
         }
         if (prev != last_it)

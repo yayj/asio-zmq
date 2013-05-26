@@ -27,17 +27,16 @@ public:
             throw exception();
     }
 
-    explicit frame() : raw_msg_()
+    explicit frame() noexcept : raw_msg_()
     {
-        if (0 != zmq_msg_init(&raw_msg_))
-            throw exception();
+        zmq_msg_init(&raw_msg_);
     }
 
     ~frame() {
         zmq_msg_close(&raw_msg_);
     }
 
-    frame(frame&& other) noexcept : raw_msg_()
+    frame(frame&& other) noexcept : frame()
     {
         zmq_msg_move(&raw_msg_, &other.raw_msg_);
     }
@@ -48,7 +47,7 @@ public:
         return *this;
     }
     
-    frame(frame const& other) : raw_msg_()
+    frame(frame const& other) : frame(other.size())
     {
         if (0 != zmq_msg_copy(&raw_msg_,
                               const_cast<zmq_msg_t*>(&other.raw_msg_)))
@@ -64,7 +63,6 @@ public:
     frame& operator=(frame const& other)
     {
         frame tmp(other);
-
         zmq_msg_move(&raw_msg_, &tmp.raw_msg_);
         return *this;
     }
