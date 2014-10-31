@@ -11,10 +11,10 @@ namespace asio {
 namespace zmq {
 namespace socket_option {
 
-constexpr std::size_t max_buff_size = 255;
+std::size_t const max_buff_size = 255;
 
 template <int option, typename T> struct socket_option_impl {
-    constexpr static int id = option;
+    static int const id = option;
     typedef T option_value_type;
 
     socket_option_impl(option_value_type value) : value_(value) {}
@@ -28,7 +28,7 @@ private:
 };
 
 template <int option> struct socket_option_impl<option, void*> {
-    constexpr static int id = option;
+    static int const id = option;
     typedef void* option_value_type;
 
     socket_option_impl() {}
@@ -50,17 +50,17 @@ private:
 };
 
 struct events : public socket_option_impl<ZMQ_EVENTS, int> {
-    constexpr static int default_value = -1;
+    static int const default_value = -1;
     explicit events(int v = default_value) : socket_option_impl<ZMQ_EVENTS, int>(v) {}
 };
 
 struct send_buff_hwm : public socket_option_impl<ZMQ_SNDHWM, int> {
-    constexpr static int default_value = 1000;
+    static int const default_value = 1000;
     explicit send_buff_hwm(int v = default_value) : socket_option_impl<ZMQ_SNDHWM, int>(v) {}
 };
 
 struct recv_more : public socket_option_impl<ZMQ_RCVMORE, bool> {
-    constexpr static bool default_value = false;
+    static bool const default_value = false;
     explicit recv_more(int v = default_value) : socket_option_impl<ZMQ_RCVMORE, bool>(v) {}
 };
 
@@ -73,7 +73,7 @@ struct identity : public socket_option_impl<ZMQ_IDENTITY, void*> {
 };
 
 struct fd : public socket_option_impl<ZMQ_FD, native_handle_type> {
-    constexpr static native_handle_type default_value = -1;
+    static native_handle_type const default_value = -1;
     explicit fd(native_handle_type v = default_value)
         : socket_option_impl<ZMQ_FD, native_handle_type>(v)
     {
@@ -81,7 +81,7 @@ struct fd : public socket_option_impl<ZMQ_FD, native_handle_type> {
 };
 
 struct linger : public socket_option_impl<ZMQ_LINGER, int> {
-    constexpr static int default_value = -1;
+    static int const default_value = -1;
     explicit linger(int v = default_value) : socket_option_impl<ZMQ_LINGER, int>(v) {}
 };
 

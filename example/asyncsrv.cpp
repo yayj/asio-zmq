@@ -18,11 +18,11 @@ typedef std::shared_ptr<message_t> message_ptr;
 static std::string const back_endpoint = "inproc://backend_";
 static std::string const front_endpoint = "tcp://127.0.0.1:5570";
 
-constexpr static int worker_amount = 5;
-constexpr static int client_amount = 3;
-constexpr static int thread_amount = 2;
+static int const worker_amount = 5;
+static int const client_amount = 3;
+static int const thread_amount = 2;
 
-constexpr static std::chrono::seconds interval{2};
+static std::chrono::seconds const interval{2};
 
 static std::mutex g_mutex;
 
