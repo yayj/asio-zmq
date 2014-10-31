@@ -8,11 +8,11 @@
 #include <string>
 #include <thread>
 #include <vector>
-#include <asio.hpp>
-#include <asio/system_timer.hpp>
+#include <boost/asio.hpp>
+#include <boost/asio/system_timer.hpp>
 #include <asio-zmq.hpp>
 
-typedef std::vector<asio::zmq::frame> message_t;
+typedef std::vector<boost::asio::zmq::frame> message_t;
 typedef std::shared_ptr<message_t> message_ptr;
 
 static std::string const back_endpoint = "inproc://backend_";
@@ -26,7 +26,7 @@ constexpr static std::chrono::seconds interval {2};
 
 static std::mutex g_mutex;
 
-static void null_handler(asio::error_code const& ec, message_ptr p) {}
+static void null_handler(boost::system::error_code const& ec, message_ptr p) {}
 
 static void print(std::string const& msg)
 {
@@ -36,9 +36,9 @@ static void print(std::string const& msg)
 
 class client_task {
 private:
-    asio::zmq::socket dealer_;
-    asio::system_timer timer_;
-    asio::io_service::strand strand_;
+    boost::asio::zmq::socket dealer_;
+    boost::asio::system_timer timer_;
+    boost::asio::io_service::strand strand_;
     std::string id_;
     int req_no_;
     std::chrono::time_point<std::chrono::system_clock> ts_;
@@ -49,7 +49,7 @@ private:
                   std::to_string(++req_no_) + " sent");
             message_ptr p {new message_t};
             p->push_back(
-                asio::zmq::frame("request " + std::to_string(req_no_)));
+                boost::asio::zmq::frame("request " + std::to_string(req_no_)));
             dealer_.async_write_message(
                 p->begin(), p->end(),
                 std::bind(null_handler, std::placeholders::_1, p));
@@ -61,7 +61,7 @@ private:
             strand_.wrap(std::bind(&client_task::on_timeout, this)));
     }
 
-    void on_response(asio::error_code const& ec, message_ptr buff) {
+    void on_response(boost::system::error_code const& ec, message_ptr buff) {
         print("Client " + id_ + " received " +
               std::to_string(buff->front()));
         ts_ = std::chrono::system_clock::now();
@@ -76,13 +76,13 @@ private:
     }
 
 public:
-    client_task(asio::io_service& ios, asio::zmq::context& ctx, int id)
+    client_task(boost::asio::io_service& ios, boost::asio::zmq::context& ctx, int id)
         : dealer_(ios, ctx, ZMQ_DEALER),
           timer_(ios), strand_(ios),
           id_(std::to_string(id)),
           req_no_(0), ts_() {
         dealer_.set_option(
-            asio::zmq::socket_option::identity(id_.c_str(), id_.size()));
+            boost::asio::zmq::socket_option::identity(id_.c_str(), id_.size()));
         dealer_.connect(front_endpoint);
     }
 
@@ -104,12 +104,12 @@ public:
 
 class async_broker {
 private:
-    asio::zmq::socket frontend_;
-    asio::zmq::socket backend_;
+    boost::asio::zmq::socket frontend_;
+    boost::asio::zmq::socket backend_;
 
     static void forward(
-        asio::error_code const& ec, message_ptr buff,
-        asio::zmq::socket& recver, asio::zmq::socket& sender,
+        boost::system::error_code const& ec, message_ptr buff,
+        boost::asio::zmq::socket& recver, boost::asio::zmq::socket& sender,
         std::string const& header) {
         print(header + std::to_string(buff->back()) + " id " +
               std::to_string(buff->front()));
@@ -127,7 +127,7 @@ private:
     }
 
 public:
-    async_broker(asio::io_service& ios, asio::zmq::context& ctx)
+    async_broker(boost::asio::io_service& ios, boost::asio::zmq::context& ctx)
         : frontend_(ios, ctx, ZMQ_ROUTER),
           backend_(ios, ctx, ZMQ_ROUTER) {
         frontend_.bind(front_endpoint);
@@ -155,10 +155,10 @@ public:
 
 class async_worker {
 private:
-    asio::zmq::socket dealer_;
+    boost::asio::zmq::socket dealer_;
     std::string id_;
 
-    void handle_read(asio::error_code const& ec, message_ptr buff) {
+    void handle_read(boost::system::error_code const& ec, message_ptr buff) {
         int reply_count = std::rand() % 5;
         for (int i = 0; i < reply_count; ++i) {
             std::this_thread::sleep_for(
@@ -179,12 +179,12 @@ private:
     }
 
 public:
-    async_worker(asio::io_service& ios,
-                 asio::zmq::context& ctx, int id)
+    async_worker(boost::asio::io_service& ios,
+                 boost::asio::zmq::context& ctx, int id)
         : dealer_(ios, ctx, ZMQ_DEALER),
           id_(std::to_string(id)) {
         dealer_.set_option(
-            asio::zmq::socket_option::identity(id_.c_str(), id_.size()));
+            boost::asio::zmq::socket_option::identity(id_.c_str(), id_.size()));
         dealer_.connect(back_endpoint);
     }
 
@@ -201,10 +201,10 @@ public:
 class thread_pool {
 private:
     std::vector<std::unique_ptr<std::thread>> pool_;
-    asio::io_service& ios_;
+    boost::asio::io_service& ios_;
 
 public:
-    thread_pool(asio::io_service& ios, int amount)
+    thread_pool(boost::asio::io_service& ios, int amount)
         : pool_(amount - 1), ios_(ios) {
     }
 
@@ -218,8 +218,8 @@ public:
             t.reset(
                 new std::thread(
                     std::bind(
-                        static_cast<std::size_t(asio::io_service::*)()>(
-                            &asio::io_service::run),
+                        static_cast<std::size_t(boost::asio::io_service::*)()>(
+                            &boost::asio::io_service::run),
                         &ios_)));
         ios_.run();
     }
@@ -229,8 +229,8 @@ int main()
 {
     std::srand(std::time(0));
 
-    asio::io_service ios;
-    asio::zmq::context ctx;
+    boost::asio::io_service ios;
+    boost::asio::zmq::context ctx;
 
     async_broker broker(ios, ctx);
     broker.start();

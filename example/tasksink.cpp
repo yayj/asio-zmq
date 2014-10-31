@@ -4,19 +4,19 @@
 #include <vector>
 #include <time.h>
 #include <sys/time.h>
-#include <asio.hpp>
+#include <boost/asio.hpp>
 #include <asio-zmq.hpp>
 
 int main(int argc, char* argv[])
 {
     //  Prepare our context and socket
-    asio::io_service ios;
-    asio::zmq::context ctx;
-    asio::zmq::socket receiver(ios, ctx, ZMQ_PULL);
+    boost::asio::io_service ios;
+    boost::asio::zmq::context ctx;
+    boost::asio::zmq::socket receiver(ios, ctx, ZMQ_PULL);
     receiver.bind("tcp://*:5558");
 
     //  Wait for start of batch
-    std::vector<asio::zmq::frame> buffer;
+    std::vector<boost::asio::zmq::frame> buffer;
     receiver.read_message(std::back_inserter(buffer));
 
     //  Start our clock now

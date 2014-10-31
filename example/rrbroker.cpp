@@ -2,21 +2,21 @@
 #include <iterator>
 #include <memory>
 #include <vector>
-#include <asio.hpp>
+#include <boost/asio.hpp>
 #include <asio-zmq.hpp>
 
 class rrbroker {
 private:
-    typedef std::vector<asio::zmq::frame> message_t;
+    typedef std::vector<boost::asio::zmq::frame> message_t;
     typedef std::shared_ptr<message_t> message_ptr;
-    typedef std::shared_ptr<asio::zmq::socket> socket_ptr;
+    typedef std::shared_ptr<boost::asio::zmq::socket> socket_ptr;
 
-    asio::zmq::socket frontend_;
-    asio::zmq::socket backend_;
+    boost::asio::zmq::socket frontend_;
+    boost::asio::zmq::socket backend_;
     message_t buffer_;
 
 public:
-    rrbroker(asio::io_service& ios, asio::zmq::context& ctx)
+    rrbroker(boost::asio::io_service& ios, boost::asio::zmq::context& ctx)
         : frontend_(ios, ctx, ZMQ_ROUTER),
           backend_(ios, ctx, ZMQ_DEALER), buffer_() {
         frontend_.bind("tcp://*:5559");
@@ -33,9 +33,9 @@ public:
                       std::ref(backend_), std::ref(frontend_)));
     }
 
-    void handle_recv(asio::error_code const& ec,
-                     asio::zmq::socket& receiver,
-                     asio::zmq::socket& forwarder) {
+    void handle_recv(boost::system::error_code const& ec,
+                     boost::asio::zmq::socket& receiver,
+                     boost::asio::zmq::socket& forwarder) {
         message_ptr tmp {new message_t};
         std::swap(*tmp, buffer_);
         forwarder.async_write_message(
@@ -48,14 +48,14 @@ public:
                       std::ref(receiver), std::ref(forwarder)));
     }
 
-    void null_handler(asio::error_code const& ec, message_ptr dummy) {}
+    void null_handler(boost::system::error_code const& ec, message_ptr dummy) {}
 };
 
 int main(int argc, char* argv[])
 {
     //  Prepare our context and sockets
-    asio::io_service ios;
-    asio::zmq::context ctx;
+    boost::asio::io_service ios;
+    boost::asio::zmq::context ctx;
     rrbroker broker(ios, ctx);
 
     ios.run();

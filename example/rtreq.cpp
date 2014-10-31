@@ -6,7 +6,7 @@
 #include <string>
 #include <thread>
 #include <vector>
-#include <asio.hpp>
+#include <boost/asio.hpp>
 #include <asio-zmq.hpp>
 
 static int const NBR_WORKERS = 10;
@@ -17,14 +17,14 @@ static std::string const work_inst = "This is the workload";
 
 class req_worker {
 private:
-    asio::zmq::socket sock_;
-    std::vector<asio::zmq::frame> message_;
+    boost::asio::zmq::socket sock_;
+    std::vector<boost::asio::zmq::frame> message_;
     int total_;
     std::string id_;
 
     void ping_pong() {
         message_.clear();
-        message_.push_back(asio::zmq::frame(ready_inst));
+        message_.push_back(boost::asio::zmq::frame(ready_inst));
         //  Tell the router we're ready for work
         sock_.write_message(std::begin(message_), std::end(message_));
 
@@ -34,7 +34,7 @@ private:
             std::bind(&req_worker::handle_work, this, std::placeholders::_1));
     }
 
-    void handle_work(asio::error_code const& ec) {
+    void handle_work(boost::system::error_code const& ec) {
         //  Get workload from router, until finished
         if (end_inst == std::to_string(message_[0])) {
             std::cout << id_ << " Processed: " << total_ << " tasks\n";
@@ -49,11 +49,11 @@ private:
     }
 
 public:
-    req_worker(asio::io_service& ios, asio::zmq::context& ctx, int id)
+    req_worker(boost::asio::io_service& ios, boost::asio::zmq::context& ctx, int id)
         : sock_(ios, ctx, ZMQ_REQ), message_(),
           total_(0), id_(std::to_string(id)) {
         sock_.set_option(
-            asio::zmq::socket_option::identity(id_.c_str(), id_.size()));
+            boost::asio::zmq::socket_option::identity(id_.c_str(), id_.size()));
         sock_.connect(endpoint);
     }
 
@@ -64,21 +64,21 @@ public:
 
 class client {
 private:
-    typedef std::vector<asio::zmq::frame> message_t;
+    typedef std::vector<boost::asio::zmq::frame> message_t;
     typedef std::shared_ptr<message_t> message_ptr;
 
-    asio::zmq::socket sock_;
+    boost::asio::zmq::socket sock_;
     message_t buffer_;
     int task_nbr_;
 
-    void handle_req(asio::error_code const& ec) {
+    void handle_req(boost::system::error_code const& ec) {
         std::string const inst =
             ++task_nbr_ <= NBR_WORKERS * 10 ? work_inst : end_inst;
 
         message_ptr tmp {new message_t};
         std::swap(*tmp, buffer_);
         tmp->pop_back();
-        tmp->push_back(asio::zmq::frame(inst));
+        tmp->push_back(boost::asio::zmq::frame(inst));
         sock_.async_write_message(
             std::begin(*tmp), std::end(*tmp),
             std::bind(&client::null_handler, this,
@@ -91,10 +91,10 @@ private:
                           std::placeholders::_1));
     }
 
-    void null_handler(asio::error_code const& ec, message_ptr dummy) {}
+    void null_handler(boost::system::error_code const& ec, message_ptr dummy) {}
 
 public:
-    client(asio::io_service& ios, asio::zmq::context& ctx)
+    client(boost::asio::io_service& ios, boost::asio::zmq::context& ctx)
         : sock_(ios, ctx, ZMQ_ROUTER), buffer_(), task_nbr_(0) {
         sock_.bind(endpoint);
     }
@@ -109,8 +109,8 @@ public:
 int main()
 {
     std::srand(std::time(0));
-    asio::io_service ios;
-    asio::zmq::context ctx;
+    boost::asio::io_service ios;
+    boost::asio::zmq::context ctx;
 
     std::vector<std::unique_ptr<req_worker>> workers(NBR_WORKERS);
     for (int worker_nbr = 0; worker_nbr < NBR_WORKERS; worker_nbr++) {

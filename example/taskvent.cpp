@@ -4,17 +4,17 @@
 #include <iostream>
 #include <iterator>
 #include <vector>
-#include <asio.hpp>
+#include <boost/asio.hpp>
 #include <asio-zmq.hpp>
 
 int main(int argc, char* argv[])
 {
-    asio::io_service ios;
-    asio::zmq::context ctx;
+    boost::asio::io_service ios;
+    boost::asio::zmq::context ctx;
 
     //  Socket to send messages on
-    asio::zmq::socket sender(ios, ctx, ZMQ_PUSH);
-    sender.set_option(asio::zmq::socket_option::linger(-1));
+    boost::asio::zmq::socket sender(ios, ctx, ZMQ_PUSH);
+    sender.set_option(boost::asio::zmq::socket_option::linger(-1));
     sender.bind("tcp://*:5557");
 
     std::cout << "Press Enter when the workers are ready: \n";
@@ -22,11 +22,11 @@ int main(int argc, char* argv[])
     std::cout << "Sending tasks to workers…\n";
 
     //  The first message is "0" and signals start of batch
-    asio::zmq::socket sink(ios, ctx, ZMQ_PUSH);
-    sink.set_option(asio::zmq::socket_option::linger(-1));
+    boost::asio::zmq::socket sink(ios, ctx, ZMQ_PUSH);
+    sink.set_option(boost::asio::zmq::socket_option::linger(-1));
     sink.connect("tcp://localhost:5558");
 
-    std::vector<asio::zmq::frame> buffer(1);
+    std::vector<boost::asio::zmq::frame> buffer(1);
     sink.write_message(std::begin(buffer), std::end(buffer));
 
     //  Initialize random number generator
@@ -43,7 +43,7 @@ int main(int argc, char* argv[])
         total_msec += workload;
 
         buffer.clear();
-        buffer.push_back(asio::zmq::frame(std::to_string(workload)));
+        buffer.push_back(boost::asio::zmq::frame(std::to_string(workload)));
         sender.write_message(std::begin(buffer), std::end(buffer));
     }
     std::cout << "Total expected cost: "

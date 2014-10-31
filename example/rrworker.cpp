@@ -4,16 +4,16 @@
 #include <iterator>
 #include <thread>
 #include <vector>
-#include <asio.hpp>
+#include <boost/asio.hpp>
 #include <asio-zmq.hpp>
 
 class rrworker {
 private:
-    asio::zmq::socket responder_;
-    std::vector<asio::zmq::frame> buffer_;
+    boost::asio::zmq::socket responder_;
+    std::vector<boost::asio::zmq::frame> buffer_;
 
 public:
-    rrworker(asio::io_service& ios, asio::zmq::context& ctx)
+    rrworker(boost::asio::io_service& ios, boost::asio::zmq::context& ctx)
         : responder_(ios, ctx, ZMQ_REP), buffer_() {
         responder_.connect("tcp://localhost:5560");
         responder_.async_read_message(
@@ -21,7 +21,7 @@ public:
             std::bind(&rrworker::handle_req, this, std::placeholders::_1));
     }
 
-    void handle_req(asio::error_code const& ec) {
+    void handle_req(boost::system::error_code const& ec) {
         std::cout << "Received request: "
                   << std::to_string(buffer_[0])
                   << "\n";
@@ -29,7 +29,7 @@ public:
         std::this_thread::sleep_for(std::chrono::seconds(1));
 
         buffer_.clear();
-        buffer_.push_back(asio::zmq::frame("World"));
+        buffer_.push_back(boost::asio::zmq::frame("World"));
         responder_.write_message(std::begin(buffer_), std::end(buffer_));
 
         buffer_.clear();
@@ -41,8 +41,8 @@ public:
 
 int main(int argc, char* argv[])
 {
-    asio::io_service ios;
-    asio::zmq::context ctx;
+    boost::asio::io_service ios;
+    boost::asio::zmq::context ctx;
 
     rrworker worker(ios, ctx);
 
