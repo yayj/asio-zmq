@@ -14,17 +14,17 @@ private:
 
 public:
     rrworker(boost::asio::io_service& ios, boost::asio::zmq::context& ctx)
-        : responder_(ios, ctx, ZMQ_REP), buffer_() {
+        : responder_(ios, ctx, ZMQ_REP), buffer_()
+    {
         responder_.connect("tcp://localhost:5560");
         responder_.async_read_message(
             std::back_inserter(buffer_),
             std::bind(&rrworker::handle_req, this, std::placeholders::_1));
     }
 
-    void handle_req(boost::system::error_code const& ec) {
-        std::cout << "Received request: "
-                  << std::to_string(buffer_[0])
-                  << "\n";
+    void handle_req(boost::system::error_code const& ec)
+    {
+        std::cout << "Received request: " << std::to_string(buffer_[0]) << "\n";
 
         std::this_thread::sleep_for(std::chrono::seconds(1));
 

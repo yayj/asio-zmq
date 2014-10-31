@@ -36,10 +36,9 @@ int main(int argc, char* argv[])
 
     auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(
                        std::chrono::system_clock::now() - watch).count();
-    unsigned long throughput = static_cast<double>(message_count) /
-                               static_cast<double>(elapsed) * 1000000;
-    double megabits = static_cast<double>(throughput * message_size * 8)
-                      / 1000000;
+    unsigned long throughput =
+        static_cast<double>(message_count) / static_cast<double>(elapsed) * 1000000;
+    double megabits = static_cast<double>(throughput * message_size * 8) / 1000000;
 
     std::cout << "mean throughput: " << throughput << " [msg/s]\n";
     std::cout << "mean throughput: " << megabits << " [Mb/s]\n";

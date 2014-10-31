@@ -31,12 +31,11 @@ int main(int argc, char* argv[])
 
     //  Initialize random number generator
     std::srand(std::chrono::duration_cast<std::chrono::seconds>(
-                   std::chrono::system_clock::now()
-                   .time_since_epoch()).count());
+                   std::chrono::system_clock::now().time_since_epoch()).count());
 
     //  Send 100 tasks
     int task_nbr;
-    int total_msec = 0;     //  Total expected cost in msecs
+    int total_msec = 0;  //  Total expected cost in msecs
     for (task_nbr = 0; task_nbr < 100; task_nbr++) {
         int workload = std::rand() % 100 + 1;
         //  Random workload from 1 to 100msecs
@@ -46,8 +45,7 @@ int main(int argc, char* argv[])
         buffer.push_back(boost::asio::zmq::frame(std::to_string(workload)));
         sender.write_message(std::begin(buffer), std::end(buffer));
     }
-    std::cout << "Total expected cost: "
-              << total_msec << " msec\n";
+    std::cout << "Total expected cost: " << total_msec << " msec\n";
 
     return 0;
 }

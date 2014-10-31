@@ -4,7 +4,7 @@
 #include <zmq.h>
 #include <zmq_utils.h>
 
-int main(int argc, char* argv [])
+int main(int argc, char* argv[])
 {
     size_t message_size;
     int roundtrip_count;
@@ -23,8 +23,8 @@ int main(int argc, char* argv [])
         return 1;
     }
 
-    message_size = atoi(argv [1]);
-    roundtrip_count = atoi(argv [2]);
+    message_size = atoi(argv[1]);
+    roundtrip_count = atoi(argv[2]);
 
     ctx = zmq_init(1);
     if (!ctx) {
@@ -56,13 +56,10 @@ int main(int argc, char* argv [])
         exit(1);
     }
 
-    zmq_pollitem_t items[] = {
-        {req, 0, ZMQ_POLLOUT, 0},
-        {rep, 0, ZMQ_POLLIN, 0}
-    };
+    zmq_pollitem_t items[] = {{req, 0, ZMQ_POLLOUT, 0}, {rep, 0, ZMQ_POLLIN, 0}};
 
-    printf("message size: %d [B]\n", (int) message_size);
-    printf("roundtrip count: %d\n", (int) roundtrip_count);
+    printf("message size: %d [B]\n", (int)message_size);
+    printf("roundtrip count: %d\n", (int)roundtrip_count);
 
     if (zmq_msg_init_size(&msg, message_size) != 0) {
         printf("error in zmq_msg_init: %s\n", zmq_strerror(errno));
@@ -96,8 +93,7 @@ int main(int argc, char* argv [])
             items[1].events = ZMQ_POLLOUT;
         }
         if ((items[1].revents & ZMQ_POLLOUT) == ZMQ_POLLOUT) {
-            if (++i == roundtrip_count)
-                break;
+            if (++i == roundtrip_count) break;
             if (zmq_msg_send(&msg, rep, 0) < ZMQ_DONTWAIT) {
                 printf("error in zmq_msg_send: %s\n", zmq_strerror(errno));
                 exit(1);
@@ -110,9 +106,9 @@ int main(int argc, char* argv [])
 
     zmq_msg_close(&msg);
 
-    latency = (double) elapsed / (roundtrip_count * 2);
+    latency = (double)elapsed / (roundtrip_count * 2);
 
-    printf("average latency: %.3f [us]\n", (double) latency);
+    printf("average latency: %.3f [us]\n", (double)latency);
 
     rc = zmq_close(req);
     if (rc != 0) {
@@ -134,4 +130,3 @@ int main(int argc, char* argv [])
 
     return 0;
 }
-

@@ -17,8 +17,7 @@ void s_dump(boost::asio::zmq::socket& socket)
     std::cout << "----------------------------------------\n";
     std::vector<boost::asio::zmq::frame> buffer;
     socket.read_message(std::back_inserter(buffer));
-    std::for_each(std::begin(buffer), std::end(buffer),
-    [](boost::asio::zmq::frame const& frame) {
+    std::for_each(std::begin(buffer), std::end(buffer), [](boost::asio::zmq::frame const& frame) {
         std::cout << std::to_string(frame) << "\n";
     });
 }
@@ -39,8 +38,7 @@ int main()
 
     boost::asio::zmq::socket identified(ios, ctx, ZMQ_REQ);
     std::string id = "PEER2";
-    identified.set_option(
-        boost::asio::zmq::socket_option::identity(id.c_str(), id.size()));
+    identified.set_option(boost::asio::zmq::socket_option::identity(id.c_str(), id.size()));
     identified.connect("inproc://example");
 
     s_send(identified, "ROUTER socket uses REQ's socket identity");

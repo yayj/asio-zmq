@@ -27,15 +27,14 @@ int main(int argc, char* argv[])
     auto watch = std::chrono::system_clock::now();
 
     boost::asio::zmq::test::perf::replier rep(ios, ctx, roundtrip_count, ep);
-    boost::asio::zmq::test::perf::requester req(ios, ctx, roundtrip_count,
-                                         message_size, ep);
+    boost::asio::zmq::test::perf::requester req(ios, ctx, roundtrip_count, message_size, ep);
 
     ios.run();
 
     auto elapsed = std::chrono::system_clock::now() - watch;
     double latency = static_cast<double>(
-                         std::chrono::duration_cast<std::chrono::microseconds>(
-                             elapsed).count()) / (roundtrip_count * 2);
+                         std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count()) /
+                     (roundtrip_count * 2);
 
     std::cout << "average latency: " << latency << " [us]\n";
 }

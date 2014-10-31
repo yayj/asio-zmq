@@ -13,13 +13,9 @@ private:
     int errno_;
 
 public:
-    exception() : errno_(zmq_errno())
-    {}
+    exception() : errno_(zmq_errno()) {}
 
-    const char *what() const noexcept
-    {
-        return zmq_strerror(errno_);
-    }
+    const char* what() const noexcept { return zmq_strerror(errno_); }
 
     boost::system::error_code get_code() const
     {
@@ -28,6 +24,6 @@ public:
     }
 };
 
-} // namespace zmq
-} // namespace asio
-} // namespace boost
+}  // namespace zmq
+}  // namespace asio
+}  // namespace boost

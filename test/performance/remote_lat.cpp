@@ -21,8 +21,7 @@ int main(int argc, char* argv[])
     boost::asio::io_service ios;
     boost::asio::zmq::context ctx;
 
-    boost::asio::zmq::test::perf::requester requester(ios, ctx, roundtrip_count,
-            message_size, ep);
+    boost::asio::zmq::test::perf::requester requester(ios, ctx, roundtrip_count, message_size, ep);
 
     auto watch = std::chrono::system_clock::now();
 
@@ -30,8 +29,8 @@ int main(int argc, char* argv[])
 
     auto elapsed = std::chrono::system_clock::now() - watch;
     double latency = static_cast<double>(
-                         std::chrono::duration_cast<std::chrono::microseconds>(
-                             elapsed).count()) / (roundtrip_count * 2);
+                         std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count()) /
+                     (roundtrip_count * 2);
     std::cout << "message size: " << message_size << " [B]\n";
     std::cout << "roundtrip count: " << roundtrip_count << "\n";
     std::cout << "average latency: " << latency << " [us]\n";

@@ -15,8 +15,8 @@ private:
 
 public:
     taskwork(boost::asio::io_service& ios, boost::asio::zmq::context& ctx)
-        : receiver_(ios, ctx, ZMQ_PULL), sender_(ios, ctx, ZMQ_PUSH),
-          buffer_() {
+        : receiver_(ios, ctx, ZMQ_PULL), sender_(ios, ctx, ZMQ_PUSH), buffer_()
+    {
         //  Socket to receive messages on
         receiver_.connect("tcp://localhost:5557");
 
@@ -24,13 +24,15 @@ public:
         sender_.connect("tcp://localhost:5558");
     }
 
-    void start() {
+    void start()
+    {
         receiver_.async_read_message(
             std::back_inserter(buffer_),
             std::bind(&taskwork::handle_read, this, std::placeholders::_1));
     }
 
-    void handle_read(boost::system::error_code const& ec) {
+    void handle_read(boost::system::error_code const& ec)
+    {
         //  Workload in msecs
         int workload = std::stoi(std::to_string(buffer_[0]));
 
@@ -45,7 +47,8 @@ public:
             std::bind(&taskwork::handle_write, this, std::placeholders::_1));
     }
 
-    void handle_write(boost::system::error_code const& ec) {
+    void handle_write(boost::system::error_code const& ec)
+    {
         //  Simple progress indicator for the viewer
         std::cout << "." << std::flush;
         buffer_.clear();

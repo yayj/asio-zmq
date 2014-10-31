@@ -41,8 +41,7 @@ int main(int argc, char* argv[])
 
     auto watch = std::chrono::system_clock::now();
 
-    for (int i = 0; i < roundtrip_count; ++i)
-        rep.write_frame(rep.read_frame());
+    for (int i = 0; i < roundtrip_count; ++i) rep.write_frame(rep.read_frame());
 
     auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(
                        std::chrono::system_clock::now() - watch).count();

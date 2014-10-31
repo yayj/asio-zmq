@@ -15,8 +15,7 @@ void pusher(int count, int msize)
     boost::asio::zmq::socket s(ios, ctx, ZMQ_PUSH);
     s.connect(ep);
 
-    while (--count >= 0)
-    	s.write_frame(boost::asio::zmq::frame(msize));
+    while (--count >= 0) s.write_frame(boost::asio::zmq::frame(msize));
 }
 
 int main(int argc, char* argv[])
@@ -41,15 +40,13 @@ int main(int argc, char* argv[])
 
     auto watch = std::chrono::system_clock::now();
 
-    for (int i = 1; i < message_count; ++i)
-    	puller.read_frame();
+    for (int i = 1; i < message_count; ++i) puller.read_frame();
 
     auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(
                        std::chrono::system_clock::now() - watch).count();
-    unsigned long throughput = static_cast<double>(message_count) /
-                               static_cast<double>(elapsed) * 1000000;
-    double megabits = static_cast<double>(throughput * message_size * 8)
-                      / 1000000;
+    unsigned long throughput =
+        static_cast<double>(message_count) / static_cast<double>(elapsed) * 1000000;
+    double megabits = static_cast<double>(throughput * message_size * 8) / 1000000;
 
     std::cout << "mean throughput: " << throughput << " [msg/s]\n";
     std::cout << "mean throughput: " << megabits << " [Mb/s]\n";

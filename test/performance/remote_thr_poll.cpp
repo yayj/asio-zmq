@@ -4,7 +4,7 @@
 #include <zmq.h>
 #include <zmq_utils.h>
 
-int main(int argc, char* argv [])
+int main(int argc, char* argv[])
 {
     const char* connect_to;
     int message_count;
@@ -20,9 +20,9 @@ int main(int argc, char* argv [])
                "<message-count>\n");
         return 1;
     }
-    connect_to = argv [1];
-    message_size = atoi(argv [2]);
-    message_count = atoi(argv [3]);
+    connect_to = argv[1];
+    message_size = atoi(argv[2]);
+    message_count = atoi(argv[3]);
 
     ctx = zmq_init(1);
     if (!ctx) {
@@ -45,7 +45,7 @@ int main(int argc, char* argv [])
         return -1;
     }
 
-    zmq_pollitem_t items[] = { {s, 0, ZMQ_POLLOUT, 0} };
+    zmq_pollitem_t items[] = {{s, 0, ZMQ_POLLOUT, 0}};
 
     for (i = 0; i != message_count; i++) {
         zmq_poll(items, 1, -1);

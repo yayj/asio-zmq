@@ -16,9 +16,11 @@ private:
 public:
     hwclient(boost::asio::io_service& io, boost::asio::zmq::context& ctx)
         : socket_(io, ctx, ZMQ_REQ), buffer_(), request_nbr_(0)
-    {}
+    {
+    }
 
-    void start() {
+    void start()
+    {
         socket_.connect("tcp://localhost:5555");
 
         buffer_.push_back(boost::asio::zmq::frame(req));
@@ -29,17 +31,17 @@ public:
             std::bind(&hwclient::handle_write, this, std::placeholders::_1));
     }
 
-    void handle_write(boost::system::error_code const& ec) {
+    void handle_write(boost::system::error_code const& ec)
+    {
         buffer_.clear();
-        socket_.async_read_message(
-            std::back_inserter(buffer_),
-            std::bind(&hwclient::handle_read, this, std::placeholders::_1));
+        socket_.async_read_message(std::back_inserter(buffer_),
+                                   std::bind(&hwclient::handle_read, this, std::placeholders::_1));
     }
 
-    void handle_read(boost::system::error_code const& ec) {
+    void handle_read(boost::system::error_code const& ec)
+    {
         std::cout << "Received World " << request_nbr_ << "\n";
-        if (++request_nbr_ == 10)
-            return;
+        if (++request_nbr_ == 10) return;
 
         buffer_.clear();
         buffer_.push_back(boost::asio::zmq::frame(req));

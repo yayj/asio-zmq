@@ -14,15 +14,13 @@ int main(int argc, char* argv[])
     requester.connect("tcp://localhost:5559");
 
     for (int count = 0; count < 10; ++count) {
-    	buffer.clear();
+        buffer.clear();
         buffer.push_back(boost::asio::zmq::frame("Hello"));
         requester.write_message(std::begin(buffer), std::end(buffer));
 
         buffer.clear();
         requester.read_message(std::back_inserter(buffer));
-        std::cout << "Received reply " << count << " ["
-                  << std::to_string(buffer[0])
-                  << "]\n";
+        std::cout << "Received reply " << count << " [" << std::to_string(buffer[0]) << "]\n";
     }
 
     return 0;

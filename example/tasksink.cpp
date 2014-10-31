@@ -35,8 +35,7 @@ int main(int argc, char* argv[])
     //  Calculate and report duration of batch
     auto duration = std::chrono::system_clock::now() - tstart;
     std::cout << "\nTotal elapsed time: "
-              << std::chrono::duration_cast<
-              std::chrono::milliseconds>(duration).count()
+              << std::chrono::duration_cast<std::chrono::milliseconds>(duration).count()
               << " msec\n";
     return 0;
 }
