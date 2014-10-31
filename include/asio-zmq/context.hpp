@@ -1,5 +1,4 @@
-#ifndef ASIO_ZMQ_CONTEXT_HPP_
-#define ASIO_ZMQ_CONTEXT_HPP_
+#pragma once
 
 #include <memory>
 #include <zmq.h>
@@ -68,5 +67,3 @@ public:
 } // namespace zmq
 } // namespace asio
 } // namespace boost
-
-#endif // ASIO_ZMQ_CONTEXT_HPP_

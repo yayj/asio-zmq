@@ -1,5 +1,4 @@
-#ifndef ASIO_ZMQ_FRAME_HPP_
-#define ASIO_ZMQ_FRAME_HPP_
+#pragma once
 
 #include <algorithm>
 #include <cstddef>
@@ -96,4 +95,3 @@ std::string to_string(boost::asio::zmq::frame const& frame)
 }
 
 }
-#endif // ASIO_ZMQ_FRAME_HPP_

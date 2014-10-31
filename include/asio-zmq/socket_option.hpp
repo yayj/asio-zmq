@@ -1,5 +1,4 @@
-#ifndef ASIO_ZMQ_SOCKET_OPTION_HPP_
-#define ASIO_ZMQ_SOCKET_OPTION_HPP_
+#pragma once
 
 #include <cstdint>
 #include <type_traits>
@@ -124,5 +123,3 @@ struct is_raw_option
 } // namespace zmq
 } // namespace asio
 } // namespace boost
-
-#endif // ASIO_ZMQ_SOCKET_OPTION_HPP_

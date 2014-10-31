@@ -1,5 +1,4 @@
-#ifndef ASIO_ZMQ_HELPERS_HPP_
-#define ASIO_ZMQ_HELPERS_HPP_
+#pragma once
 
 #include <boost/asio/io_service.hpp>
 #include <boost/asio/posix/basic_stream_descriptor.hpp>
@@ -43,5 +42,3 @@ struct context_deleter {
 } // namespace zmq
 } // namespace asio
 } // namespace boost
-
-#endif // ASIO_ZMQ_HELPERS_HPP_

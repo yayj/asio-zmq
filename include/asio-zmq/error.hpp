@@ -1,5 +1,4 @@
-#ifndef ASIO_ZMQ_ERROR_HPP_
-#define ASIO_ZMQ_ERROR_HPP_
+#pragma once
 
 #include <string>
 #include <system_error>
@@ -49,5 +48,3 @@ struct is_error_code_enum<boost::asio::error::zmq_error>
     : std::true_type {};
 
 } // namespace std
-
-#endif // ASIO_ZMQ_EE_HPP_

@@ -1,5 +1,4 @@
-#ifndef ASIO_ZMQ_SOCKET_HPP_
-#define ASIO_ZMQ_SOCKET_HPP_
+#pragma once
 
 #include <array>
 #include <algorithm>
@@ -249,5 +248,3 @@ public:
 } // namespace zmq
 } // namespace asio
 } // namespace boost
-
-#endif // ASIO_ZMQ_SOCKET_HPP_

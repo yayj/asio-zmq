@@ -1,5 +1,4 @@
-#ifndef ASIO_ZMQ_EXCEPTION_HPP_
-#define ASIO_ZMQ_EXCEPTION_HPP_
+#pragma once
 
 #include <exception>
 #include <zmq.h>
@@ -32,5 +31,3 @@ public:
 } // namespace zmq
 } // namespace asio
 } // namespace boost
-
-#endif // ASIO_ZMQ_EXCEPTION_HPP_
