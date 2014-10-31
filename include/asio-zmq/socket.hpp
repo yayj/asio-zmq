@@ -7,14 +7,15 @@
 #include <functional>
 #include <memory>
 #include <string>
-#include <asio/error_code.hpp>
-#include <asio/io_service.hpp>
+#include <boost/asio/io_service.hpp>
+#include <boost/system/error_code.hpp>
 #include <zmq.h>
 #include "helpers.hpp"
 #include "socket_option.hpp"
 #include "context.hpp"
 #include "frame.hpp"
 
+namespace boost {
 namespace asio {
 namespace zmq {
 
@@ -28,7 +29,7 @@ private:
 
     template <typename OutputIt, typename ReadHandlerPtr>
     void read_one_message(OutputIt buff_it, ReadHandlerPtr handler,
-                          asio::error_code const& ec) {
+                          boost::system::error_code const& ec) {
         if (ec) {
             io_.post(std::bind(*handler, ec));
             return;
@@ -38,7 +39,7 @@ private:
             if (is_readable()) {
                 read_message(buff_it);
                 io_.post(
-                    std::bind(*handler, asio::error_code()));
+                    std::bind(*handler, boost::system::error_code()));
             } else {
                 descriptor_.async_read_some(
                     asio::null_buffers(),
@@ -55,7 +56,7 @@ private:
     template <typename InputIt, typename WriteHandlerPtr>
     void write_one_message(InputIt first_it, InputIt last_it,
                            WriteHandlerPtr handler,
-                           asio::error_code const& ec) {
+                           boost::system::error_code const& ec) {
         if (ec) {
             io_.post(std::bind(*handler, ec));
             return;
@@ -64,7 +65,7 @@ private:
         try {
             if (is_writable()) {
                 write_message(first_it, last_it);
-                io_.post(std::bind(*handler, asio::error_code()));
+                io_.post(std::bind(*handler, boost::system::error_code()));
             } else {
                 descriptor_.async_write_some(
                     asio::null_buffers(),
@@ -160,7 +161,7 @@ public:
     void async_read_message(OutputIt buff_it, ReadHandler handler) {
         read_one_message(buff_it,
                          std::make_shared<ReadHandler>(handler),
-                         asio::error_code());
+                         boost::system::error_code());
     }
 
     template <typename InputIt, typename WriteHandler>
@@ -168,7 +169,7 @@ public:
                              WriteHandler handler) {
         write_one_message(first_it, last_it,
                           std::make_shared<WriteHandler>(handler),
-                          asio::error_code());
+                          boost::system::error_code());
     }
 
     template <typename Option>
@@ -247,5 +248,6 @@ public:
 
 } // namespace zmq
 } // namespace asio
+} // namespace boost
 
 #endif // ASIO_ZMQ_SOCKET_HPP_

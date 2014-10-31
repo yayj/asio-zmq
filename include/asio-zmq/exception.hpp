@@ -5,6 +5,7 @@
 #include <zmq.h>
 #include "error.hpp"
 
+namespace boost {
 namespace asio {
 namespace zmq {
 
@@ -21,14 +22,15 @@ public:
         return zmq_strerror(errno_);
     }
 
-    asio::error_code get_code() const
+    boost::system::error_code get_code() const
     {
-        return asio::error::make_error_code(
-            static_cast<asio::error::zmq_error>(errno_));
+        return boost::asio::error::make_error_code(
+            static_cast<boost::asio::error::zmq_error>(errno_));
     }
 };
 
 } // namespace zmq
 } // namespace asio
+} // namespace boost
 
 #endif // ASIO_ZMQ_EXCEPTION_HPP_

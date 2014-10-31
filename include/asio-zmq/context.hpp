@@ -6,6 +6,7 @@
 #include "helpers.hpp"
 #include "exception.hpp"
 
+namespace boost {
 namespace asio {
 namespace zmq {
 
@@ -66,5 +67,6 @@ public:
 
 } // namespace zmq
 } // namespace asio
+} // namespace boost
 
 #endif // ASIO_ZMQ_CONTEXT_HPP_

@@ -11,6 +11,7 @@
 #include "helpers.hpp"
 #include "exception.hpp"
 
+namespace boost {
 namespace asio {
 namespace zmq {
 
@@ -85,10 +86,11 @@ public:
 
 } // namespace zmq
 } // namespace asio
+} // namespace boost
 
 namespace std {
 
-std::string to_string(asio::zmq::frame const& frame)
+std::string to_string(boost::asio::zmq::frame const& frame)
 {
     return std::string(static_cast<char const*>(frame.data()), frame.size());
 }

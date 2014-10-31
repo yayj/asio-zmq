@@ -7,6 +7,7 @@
 #include <zmq.h>
 #include "helpers.hpp"
 
+namespace boost {
 namespace asio {
 namespace zmq {
 namespace socket_option {
@@ -122,5 +123,6 @@ struct is_raw_option
 } // namespace socket_option
 } // namespace zmq
 } // namespace asio
+} // namespace boost
 
 #endif // ASIO_ZMQ_SOCKET_OPTION_HPP_

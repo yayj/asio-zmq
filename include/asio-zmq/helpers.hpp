@@ -1,11 +1,12 @@
 #ifndef ASIO_ZMQ_HELPERS_HPP_
 #define ASIO_ZMQ_HELPERS_HPP_
 
-#include <asio/io_service.hpp>
-#include <asio/posix/basic_stream_descriptor.hpp>
-#include <asio/posix/stream_descriptor_service.hpp>
+#include <boost/asio/io_service.hpp>
+#include <boost/asio/posix/basic_stream_descriptor.hpp>
+#include <boost/asio/posix/stream_descriptor_service.hpp>
 #include <zmq.h>
 
+namespace boost {
 namespace asio {
 namespace zmq {
 
@@ -41,5 +42,6 @@ struct context_deleter {
 
 } // namespace zmq
 } // namespace asio
+} // namespace boost
 
 #endif // ASIO_ZMQ_HELPERS_HPP_
