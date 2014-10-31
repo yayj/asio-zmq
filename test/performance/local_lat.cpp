@@ -1,7 +1,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <string>
-#include <asio.hpp>
+#include <boost/asio.hpp>
 #include <asio-zmq.hpp>
 #include "helper.hpp"
 
@@ -17,9 +17,9 @@ int main(int argc, char* argv[])
     int message_size = std::atoi(argv[2]);
     int roundtrip_count = std::atoi(argv[3]);
 
-    asio::io_service ios;
-    asio::zmq::context ctx;
-    asio::zmq::test::perf::replier replier(ios, ctx, roundtrip_count, ep);
+    boost::asio::io_service ios;
+    boost::asio::zmq::context ctx;
+    boost::asio::zmq::test::perf::replier replier(ios, ctx, roundtrip_count, ep);
 
     ios.run();
 }

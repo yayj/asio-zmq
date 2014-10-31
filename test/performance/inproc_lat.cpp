@@ -2,7 +2,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <string>
-#include <asio.hpp>
+#include <boost/asio.hpp>
 #include <asio-zmq.hpp>
 #include "helper.hpp"
 
@@ -21,13 +21,13 @@ int main(int argc, char* argv[])
     std::cout << "message size: " << message_size << " [B]\n";
     std::cout << "roundtrip count: " << roundtrip_count << "\n";
 
-    asio::io_service ios;
-    asio::zmq::context ctx;
+    boost::asio::io_service ios;
+    boost::asio::zmq::context ctx;
 
     auto watch = std::chrono::system_clock::now();
 
-    asio::zmq::test::perf::replier rep(ios, ctx, roundtrip_count, ep);
-    asio::zmq::test::perf::requester req(ios, ctx, roundtrip_count,
+    boost::asio::zmq::test::perf::replier rep(ios, ctx, roundtrip_count, ep);
+    boost::asio::zmq::test::perf::requester req(ios, ctx, roundtrip_count,
                                          message_size, ep);
 
     ios.run();

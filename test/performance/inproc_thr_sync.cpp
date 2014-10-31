@@ -3,20 +3,20 @@
 #include <iostream>
 #include <string>
 #include <thread>
-#include <asio.hpp>
+#include <boost/asio.hpp>
 #include <asio-zmq.hpp>
 
 static std::string const ep = "inproc://thr_test";
-static asio::io_service ios;
-static asio::zmq::context ctx;
+static boost::asio::io_service ios;
+static boost::asio::zmq::context ctx;
 
 void pusher(int count, int msize)
 {
-    asio::zmq::socket s(ios, ctx, ZMQ_PUSH);
+    boost::asio::zmq::socket s(ios, ctx, ZMQ_PUSH);
     s.connect(ep);
 
     while (--count >= 0)
-    	s.write_frame(asio::zmq::frame(msize));
+    	s.write_frame(boost::asio::zmq::frame(msize));
 }
 
 int main(int argc, char* argv[])
@@ -32,7 +32,7 @@ int main(int argc, char* argv[])
     std::cout << "message size: " << message_size << " [B]\n";
     std::cout << "message count: " << message_count << "\n";
 
-    asio::zmq::socket puller(ios, ctx, ZMQ_PULL);
+    boost::asio::zmq::socket puller(ios, ctx, ZMQ_PULL);
     puller.bind(ep);
 
     std::thread worker(std::bind(pusher, message_count, message_size));

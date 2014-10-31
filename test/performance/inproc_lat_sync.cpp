@@ -3,20 +3,20 @@
 #include <iostream>
 #include <string>
 #include <thread>
-#include <asio.hpp>
+#include <boost/asio.hpp>
 #include <asio-zmq.hpp>
 
 static std::string const ep = "inproc://lat_test";
-static asio::io_service ios;
-static asio::zmq::context ctx;
+static boost::asio::io_service ios;
+static boost::asio::zmq::context ctx;
 
 void requester(int rc, int msize)
 {
-    asio::zmq::socket req(ios, ctx, ZMQ_REQ);
+    boost::asio::zmq::socket req(ios, ctx, ZMQ_REQ);
     req.connect(ep);
 
     while (--rc >= 0) {
-        req.write_frame(asio::zmq::frame(msize));
+        req.write_frame(boost::asio::zmq::frame(msize));
         req.read_frame();
     }
 }
@@ -34,7 +34,7 @@ int main(int argc, char* argv[])
     std::cout << "message size: " << message_size << " [B]\n";
     std::cout << "roundtrip count: " << roundtrip_count << "\n";
 
-    asio::zmq::socket rep(ios, ctx, ZMQ_REP);
+    boost::asio::zmq::socket rep(ios, ctx, ZMQ_REP);
     rep.bind(ep);
 
     std::thread worker(std::bind(requester, roundtrip_count, message_size));

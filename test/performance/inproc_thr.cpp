@@ -5,7 +5,7 @@
 #include <memory>
 #include <string>
 #include <vector>
-#include <asio.hpp>
+#include <boost/asio.hpp>
 #include <asio-zmq.hpp>
 #include "helper.hpp"
 
@@ -24,11 +24,11 @@ int main(int argc, char* argv[])
     std::cout << "message size: " << message_size << " [B]\n";
     std::cout << "message count: " << message_count << "\n";
 
-    asio::io_service ios;
-    asio::zmq::context ctx;
+    boost::asio::io_service ios;
+    boost::asio::zmq::context ctx;
 
-    asio::zmq::test::perf::puller pl(ios, ctx, message_count, ep);
-    asio::zmq::test::perf::pusher ps(ios, ctx, message_count, message_size, ep);
+    boost::asio::zmq::test::perf::puller pl(ios, ctx, message_count, ep);
+    boost::asio::zmq::test::perf::pusher ps(ios, ctx, message_count, message_size, ep);
 
     auto watch = std::chrono::system_clock::now();
 
