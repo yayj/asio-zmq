@@ -3,7 +3,6 @@
 #include <array>
 #include <algorithm>
 #include <cstddef>
-#include <functional>
 #include <memory>
 #include <string>
 #include <boost/asio/io_service.hpp>
@@ -26,53 +25,54 @@ private:
     descriptor_type descriptor_;
     zsocket_type zsock_;
 
-    template <typename OutputIt, typename ReadHandlerPtr>
-    void read_one_message(OutputIt buff_it, ReadHandlerPtr handler,
-                          boost::system::error_code const& ec)
+    template <typename OutputIt, typename HandlerPtr>
+    void read_one_message(OutputIt buff_it, HandlerPtr handler, boost::system::error_code const& ec)
     {
         if (ec) {
-            io_.post(std::bind(*handler, ec));
+            io_.post([=] { (*handler)(ec); });
             return;
         }
 
         try {
             if (is_readable()) {
                 read_message(buff_it);
-                io_.post(std::bind(*handler, boost::system::error_code()));
+                io_.post([=] { (*handler)(boost::system::error_code()); });
             } else {
-                descriptor_.async_read_some(
-                    asio::null_buffers(),
-                    std::bind(&socket::read_one_message<OutputIt, ReadHandlerPtr>, this, buff_it,
-                              handler, std::placeholders::_1));
+                descriptor_.async_read_some(asio::null_buffers(),
+                                            [=](boost::system::error_code const& ec, std::size_t) {
+                    read_one_message(buff_it, handler, ec);
+                });
             }
         }
-        catch (exception e) {
-            io_.post(std::bind(*handler, e.get_code()));
+        catch (exception const& e) {
+            auto code = e.get_code();
+            io_.post([=] { (*handler)(code); });
         }
     }
 
-    template <typename InputIt, typename WriteHandlerPtr>
-    void write_one_message(InputIt first_it, InputIt last_it, WriteHandlerPtr handler,
+    template <typename InputIt, typename HandlerPtr>
+    void write_one_message(InputIt first_it, InputIt last_it, HandlerPtr handler,
                            boost::system::error_code const& ec)
     {
         if (ec) {
-            io_.post(std::bind(*handler, ec));
+            io_.post([=] { (*handler)(ec); });
             return;
         }
 
         try {
             if (is_writable()) {
                 write_message(first_it, last_it);
-                io_.post(std::bind(*handler, boost::system::error_code()));
+                io_.post([=] { (*handler)(boost::system::error_code()); });
             } else {
-                descriptor_.async_write_some(
-                    asio::null_buffers(),
-                    std::bind(&socket::write_one_message<InputIt, WriteHandlerPtr>, this, first_it,
-                              last_it, handler, std::placeholders::_1));
+                descriptor_.async_write_some(asio::null_buffers(),
+                                             [=](boost::system::error_code const& ec, std::size_t) {
+                    write_one_message(first_it, last_it, handler, ec);
+                });
             }
         }
-        catch (exception e) {
-            io_.post(std::bind(*handler, e.get_code()));
+        catch (exception const& e) {
+            auto code = e.get_code();
+            io_.post([=] { (*handler)(code); });
         }
     }
 
