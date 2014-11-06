@@ -91,8 +91,16 @@ struct is_binary_option
 };
 
 template <typename OptionType>
+struct enable_if_binary : public std::enable_if<is_binary_option<OptionType>::value> {
+};
+
+template <typename OptionType>
 struct is_bool_option
     : public std::is_base_of<socket_option_impl<OptionType::id, bool>, OptionType> {
+};
+
+template <typename OptionType>
+struct enable_if_bool : public std::enable_if<is_bool_option<OptionType>::value> {
 };
 
 template <typename OptionType>
@@ -102,6 +110,10 @@ struct is_raw_option
                     socket_option_impl<OptionType::id, typename OptionType::option_value_type>,
                     OptionType>::value &&
                     !is_bool_option<OptionType>::value && !is_binary_option<OptionType>::value> {
+};
+
+template <typename OptionType>
+struct enable_if_raw : public std::enable_if<is_raw_option<OptionType>::value> {
 };
 
 }  // namespace socket_option

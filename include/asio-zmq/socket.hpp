@@ -173,9 +173,8 @@ public:
     }
 
     template <typename Option>
-    void get_option(
-        Option& option,
-        typename std::enable_if<socket_option::is_raw_option<Option>::value>::type* = nullptr) const
+    void get_option(Option& option,
+                    typename socket_option::enable_if_raw<Option>::type* = nullptr) const
     {
         size_t size = sizeof(option.value());
         if (-1 ==
@@ -185,8 +184,7 @@ public:
 
     template <typename Option>
     void get_option(Option& option,
-                    typename std::enable_if<socket_option::is_bool_option<Option>::value>::type* =
-                        nullptr) const
+                    typename socket_option::enable_if_bool<Option>::type* = nullptr) const
     {
         int v;
         size_t size = sizeof(v);
@@ -195,9 +193,8 @@ public:
     }
 
     template <typename Option>
-    void set_option(
-        Option const& option,
-        typename std::enable_if<socket_option::is_raw_option<Option>::value>::type* = nullptr)
+    void set_option(Option const& option,
+                    typename socket_option::enable_if_raw<Option>::type* = nullptr)
     {
         typename Option::option_value_type v = option.value();
         size_t size = sizeof(v);
@@ -205,9 +202,8 @@ public:
     }
 
     template <typename Option>
-    void set_option(
-        Option const& option,
-        typename std::enable_if<socket_option::is_bool_option<Option>::value>::type* = nullptr)
+    void set_option(Option const& option,
+                    typename socket_option::enable_if_bool<Option>::type* = nullptr)
     {
         int v = static_cast<int>(option.value());
         size_t size = sizeof(v);
@@ -216,8 +212,7 @@ public:
 
     template <typename Option>
     void get_option(Option& option,
-                    typename std::enable_if<socket_option::is_binary_option<Option>::value>::type* =
-                        nullptr) const
+                    typename socket_option::enable_if_binary<Option>::type* = nullptr) const
     {
         std::array<uint8_t, socket_option::max_buff_size> buffer;
         size_t size = socket_option::max_buff_size;
@@ -227,9 +222,8 @@ public:
     }
 
     template <typename Option>
-    void set_option(
-        Option const& option,
-        typename std::enable_if<socket_option::is_binary_option<Option>::value>::type* = nullptr)
+    void set_option(Option const& option,
+                    typename socket_option::enable_if_binary<Option>::type* = nullptr)
     {
         if (-1 == zmq_setsockopt(zsock_.get(), Option::id, option.value(), option.size()))
             throw exception();
