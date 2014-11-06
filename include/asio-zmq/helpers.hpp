@@ -10,14 +10,14 @@ namespace asio {
 namespace zmq {
 
 template <typename IoObjectService> struct non_closing_io_object_service : public IoObjectService {
-    explicit non_closing_io_object_service(asio::io_service& io) : IoObjectService(io) {}
+    explicit non_closing_io_object_service(io_service& io) : IoObjectService(io) {}
 
     void destroy(typename IoObjectService::implementation_type& impl) {}
 };
 
-typedef non_closing_io_object_service<asio::posix::stream_descriptor_service> descriptor_service;
+typedef non_closing_io_object_service<posix::stream_descriptor_service> descriptor_service;
 
-typedef asio::posix::basic_stream_descriptor<descriptor_service> descriptor_type;
+typedef posix::basic_stream_descriptor<descriptor_service> descriptor_type;
 
 typedef descriptor_type::native_handle_type native_handle_type;
 

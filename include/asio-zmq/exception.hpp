@@ -17,10 +17,9 @@ public:
 
     const char* what() const noexcept { return zmq_strerror(errno_); }
 
-    boost::system::error_code get_code() const
+    system::error_code get_code() const
     {
-        return boost::asio::error::make_error_code(
-            static_cast<boost::asio::error::zmq_error>(errno_));
+        return error::make_error_code(static_cast<error::zmq_error>(errno_));
     }
 };
 

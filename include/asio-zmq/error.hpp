@@ -13,21 +13,21 @@ namespace error {
 
 enum class zmq_error {};
 
-struct zmq_error_category_impl : public boost::system::error_category {
+struct zmq_error_category_impl : public system::error_category {
     virtual const char* name() const noexcept { return "zeromq"; }
 
     virtual std::string message(int ev) const noexcept { return ::zmq_strerror(ev); }
 };
 
-const boost::system::error_category& zmq_category()
+const system::error_category& zmq_category()
 {
     static zmq_error_category_impl instance;
     return instance;
 }
 
-boost::system::error_code make_error_code(zmq_error e)
+system::error_code make_error_code(zmq_error e)
 {
-    return boost::system::error_code(static_cast<int>(e), zmq_category());
+    return system::error_code(static_cast<int>(e), zmq_category());
 }
 
 }  // namespace error

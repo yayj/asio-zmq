@@ -19,14 +19,22 @@ namespace zmq {
 
 class socket {
 private:
-    typedef std::unique_ptr<void, socket_deleter> zsocket_type;
+    using size_t = std::size_t;
+    using string = std::string;
+    using uint8_t = std::uint8_t;
 
-    asio::io_service& io_;
+    using io_service = boost::asio::io_service;
+    using null_buffers = boost::asio::null_buffers;
+    using error_code = boost::system::error_code;
+
+    using socket_type = std::unique_ptr<void, socket_deleter>;
+
+    io_service& io_;
     descriptor_type descriptor_;
-    zsocket_type zsock_;
+    socket_type zsock_;
 
     template <typename OutputIt, typename HandlerPtr>
-    void read_one_message(OutputIt buff_it, HandlerPtr handler, boost::system::error_code const& ec)
+    void read_one_message(OutputIt buff_it, HandlerPtr handler, error_code const& ec)
     {
         if (ec) {
             io_.post([=] { (*handler)(ec); });
@@ -36,10 +44,9 @@ private:
         try {
             if (is_readable()) {
                 read_message(buff_it);
-                io_.post([=] { (*handler)(boost::system::error_code()); });
+                io_.post([=] { (*handler)(error_code()); });
             } else {
-                descriptor_.async_read_some(asio::null_buffers(),
-                                            [=](boost::system::error_code const& ec, std::size_t) {
+                descriptor_.async_read_some(null_buffers(), [=](error_code const& ec, size_t) {
                     read_one_message(buff_it, handler, ec);
                 });
             }
@@ -52,7 +59,7 @@ private:
 
     template <typename InputIt, typename HandlerPtr>
     void write_one_message(InputIt first_it, InputIt last_it, HandlerPtr handler,
-                           boost::system::error_code const& ec)
+                           error_code const& ec)
     {
         if (ec) {
             io_.post([=] { (*handler)(ec); });
@@ -62,10 +69,9 @@ private:
         try {
             if (is_writable()) {
                 write_message(first_it, last_it);
-                io_.post([=] { (*handler)(boost::system::error_code()); });
+                io_.post([=] { (*handler)(error_code()); });
             } else {
-                descriptor_.async_write_some(asio::null_buffers(),
-                                             [=](boost::system::error_code const& ec, std::size_t) {
+                descriptor_.async_write_some(null_buffers(), [=](error_code const& ec, size_t) {
                     write_one_message(first_it, last_it, handler, ec);
                 });
             }
@@ -77,7 +83,7 @@ private:
     }
 
 public:
-    explicit socket(asio::io_service& io, context& ctx, int type)
+    explicit socket(io_service& io, context& ctx, int type)
         : io_(io), descriptor_(io), zsock_(::zmq_socket(ctx.zctx_.get(), type))
     {
         if (!zsock_) {
@@ -91,12 +97,12 @@ public:
 
     void cancel() { descriptor_.cancel(); }
 
-    void bind(std::string const& endpoint)
+    void bind(string const& endpoint)
     {
         if (0 != zmq_bind(zsock_.get(), endpoint.c_str())) throw exception();
     }
 
-    void connect(std::string const& endpoint)
+    void connect(string const& endpoint)
     {
         if (0 != zmq_connect(zsock_.get(), endpoint.c_str())) throw exception();
     }
@@ -157,15 +163,13 @@ public:
     template <typename OutputIt, typename ReadHandler>
     void async_read_message(OutputIt buff_it, ReadHandler handler)
     {
-        read_one_message(buff_it, std::make_shared<ReadHandler>(handler),
-                         boost::system::error_code());
+        read_one_message(buff_it, std::make_shared<ReadHandler>(handler), error_code());
     }
 
     template <typename InputIt, typename WriteHandler>
     void async_write_message(InputIt first_it, InputIt last_it, WriteHandler handler)
     {
-        write_one_message(first_it, last_it, std::make_shared<WriteHandler>(handler),
-                          boost::system::error_code());
+        write_one_message(first_it, last_it, std::make_shared<WriteHandler>(handler), error_code());
     }
 
     template <typename Option>
@@ -173,7 +177,7 @@ public:
         Option& option,
         typename std::enable_if<socket_option::is_raw_option<Option>::value>::type* = nullptr) const
     {
-        std::size_t size = sizeof(option.value());
+        size_t size = sizeof(option.value());
         if (-1 ==
             zmq_getsockopt(zsock_.get(), Option::id, static_cast<void*>(&option.value()), &size))
             throw exception();
@@ -185,7 +189,7 @@ public:
                         nullptr) const
     {
         int v;
-        std::size_t size = sizeof(v);
+        size_t size = sizeof(v);
         if (-1 == zmq_getsockopt(zsock_.get(), Option::id, &v, &size)) throw exception();
         option.value() = static_cast<bool>(v);
     }
@@ -196,7 +200,7 @@ public:
         typename std::enable_if<socket_option::is_raw_option<Option>::value>::type* = nullptr)
     {
         typename Option::option_value_type v = option.value();
-        std::size_t size = sizeof(v);
+        size_t size = sizeof(v);
         if (-1 == zmq_setsockopt(zsock_.get(), Option::id, &v, size)) throw exception();
     }
 
@@ -206,7 +210,7 @@ public:
         typename std::enable_if<socket_option::is_bool_option<Option>::value>::type* = nullptr)
     {
         int v = static_cast<int>(option.value());
-        std::size_t size = sizeof(v);
+        size_t size = sizeof(v);
         if (-1 == zmq_getsockopt(zsock_.get(), Option::id, &v, size)) throw exception();
     }
 
@@ -215,11 +219,11 @@ public:
                     typename std::enable_if<socket_option::is_binary_option<Option>::value>::type* =
                         nullptr) const
     {
-        std::array<std::uint8_t, socket_option::max_buff_size> buffer;
-        std::size_t size = socket_option::max_buff_size;
+        std::array<uint8_t, socket_option::max_buff_size> buffer;
+        size_t size = socket_option::max_buff_size;
         if (-1 == zmq_getsockopt(zsock_.get(), Option::id, buffer.data(), &size)) throw exception();
         option.resize(size);
-        std::copy(buffer.data(), buffer.data() + size, static_cast<std::uint8_t*>(option.value()));
+        std::copy(buffer.data(), buffer.data() + size, static_cast<uint8_t*>(option.value()));
     }
 
     template <typename Option>
