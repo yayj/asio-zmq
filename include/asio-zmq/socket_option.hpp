@@ -77,6 +77,14 @@ struct identity : public socket_option_impl<ZMQ_IDENTITY, void*> {
     }
 };
 
+struct subscribe : public socket_option_impl<ZMQ_SUBSCRIBE, void*> {
+    subscribe() {}
+    subscribe(void const* value, std::size_t size)
+        : socket_option_impl<ZMQ_SUBSCRIBE, void*>(value, size)
+    {
+    }
+};
+
 struct fd : public socket_option_impl<ZMQ_FD, native_handle_type> {
     static native_handle_type const default_value = -1;
     explicit fd(native_handle_type v = default_value)
