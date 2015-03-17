@@ -83,6 +83,10 @@ struct subscribe : public socket_option_impl<ZMQ_SUBSCRIBE, void*> {
         : socket_option_impl<ZMQ_SUBSCRIBE, void*>(value, size)
     {
     }
+    subscribe(const std::string& value)
+        : socket_option_impl<ZMQ_SUBSCRIBE, void*>(value.c_str(), value.size())
+    {
+    }
 };
 
 struct fd : public socket_option_impl<ZMQ_FD, native_handle_type> {
