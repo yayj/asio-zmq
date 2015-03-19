@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <string>
 #include <type_traits>
 #include <vector>
 #include <zmq.h>
@@ -68,6 +69,22 @@ struct identity : public socket_option_impl<ZMQ_IDENTITY, void*> {
     identity() {}
     identity(void const* value, std::size_t size)
         : socket_option_impl<ZMQ_IDENTITY, void*>(value, size)
+    {
+    }
+    identity(const std::string& value)
+        : socket_option_impl<ZMQ_IDENTITY, void*>(value.c_str(),value.size())
+    {
+    }
+};
+
+struct subscribe : public socket_option_impl<ZMQ_SUBSCRIBE, void*> {
+    subscribe() {}
+    subscribe(void const* value, std::size_t size)
+        : socket_option_impl<ZMQ_SUBSCRIBE, void*>(value, size)
+    {
+    }
+    subscribe(const std::string& value)
+        : socket_option_impl<ZMQ_SUBSCRIBE, void*>(value.c_str(), value.size())
     {
     }
 };
